@@ -1,4 +1,4 @@
-# Security & Cryptography — Mpesa Analyzer App
+# Security & Cryptography — Smart Financial SMS (Android Client)
 
 Details on client-side encryption, biometric authentication, and hardware fingerprinting.
 
@@ -19,6 +19,7 @@ Before network transmission, SMS messages are parsed into JSON and encrypted:
 
 - **`FLAG_SECURE`**: Enabled on `MainActivity` and `LockActivity` windows to prevent screenshots, screen recording, and exposure in the Android recent apps switcher.
 - **Biometric Authentication**: Integrated via `androidx.biometric.BiometricPrompt`, allowing device credential fallback (PIN/Pattern) on API 30+.
+- **30-Second Grace Period**: Solves biometric re-prompt race conditions when users briefly background the app or answer system dialogs by granting a temporary token before re-locking.
 
 ---
 

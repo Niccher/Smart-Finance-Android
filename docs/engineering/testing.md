@@ -1,4 +1,4 @@
-# Testing Guide — Mpesa Analyzer App
+# Testing Guide — Smart Financial SMS (Android Client)
 
 Information on executing unit and UI instrumentation tests.
 

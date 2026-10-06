@@ -1,0 +1,72 @@
+site_name: Smart Financial SMS (Android Client) Documentation
+site_description: Engineering and user documentation for the Smart Financial SMS native Android companion client.
+site_author: Smart Finance Mobile Engineering Team
+repo_url: https://github.com/Niccher/Smart-Finance-Android
+repo_name: Niccher/Smart-Finance-Android
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: teal
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: teal
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - attr_list
+  - md_in_html
+
+nav:
+  - Client Overview:
+      - Engineering Portal: docs/README.md
+      - Operator & User Guide: README.md
+  - User Documentation:
+      - Setup & Run: docs/user/setup-and-run.md
+      - Configuration: docs/user/configuration.md
+      - Troubleshooting: docs/user/troubleshooting.md
+  - Service Handbook:
+      - Android Architecture: docs/services/android.md
+  - Engineering Guides:
+      - Local Development: docs/engineering/local-development.md
+      - Making Changes Safely: docs/engineering/making-changes.md
+      - Security & Cryptography: docs/engineering/security.md
+      - Testing Guide: docs/engineering/testing.md
+      - Release & Compatibility: docs/engineering/release.md
+      - Contributing Standards: docs/engineering/contributing.md
+      - Dev Troubleshooting: docs/engineering/troubleshooting.md
+  - Architecture Decision Records:
+      - ADR 0001 - Client-Side Dynamic IV AES-128: docs/adr/0001-client-side-aes128-dynamic-iv.md
+      - ADR 0002 - Homescreen Glance Widget: docs/adr/0002-glance-app-widget.md
+      - ADR 0003 - Hybrid CameraX QR & Numeric Pairing: docs/adr/0003-hybrid-qr-numeric-pairing.md

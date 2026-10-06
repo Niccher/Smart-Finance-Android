@@ -1,4 +1,4 @@
-# Developer Troubleshooting — Mpesa Analyzer App
+# Developer Troubleshooting — Smart Financial SMS (Android Client)
 
 Common build, Gradle, and IDE issues for Android developers.
 
@@ -15,7 +15,16 @@ Ensure Android Studio is using **JDK 17**:
 
 ---
 
-## 2. Unaccepted Android SDK Licenses
+## 2. Kotlin 2.0 & Room KSP Incompatibility
+
+**Symptom**: `Room cannot process Kotlin metadata 2.1.0` or kapt generation failure.
+
+**Remedy**:
+The project has migrated from `kapt` to `ksp` for Room annotation processing. Ensure the `ksp` plugin alias version in `gradle/libs.versions.toml` strictly matches the project's Kotlin 2.0 runtime.
+
+---
+
+## 3. Unaccepted Android SDK Licenses
 
 **Symptom**: `Failed to install the following Android SDK packages as some licences have not been accepted`.
 
@@ -27,7 +36,7 @@ yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
 
 ---
 
-## 3. ADB Device Unauthorized or Offline
+## 4. ADB Device Unauthorized or Offline
 
 **Symptom**: `adb devices` shows device as `unauthorized`.
 

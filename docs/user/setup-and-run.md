@@ -1,4 +1,4 @@
-# Setup and Run Guide — Mpesa Analyzer App
+# Setup and Run Guide — Smart Financial SMS (Android Client)
 
 This guide walks through installing, configuring, and operating the Android client.
 
@@ -9,7 +9,7 @@ This guide walks through installing, configuring, and operating the Android clie
 - **Android Studio** Hedgehog (2023.1.1) or newer
 - **JDK 17+**
 - Android device or emulator running **API 29+** (Android 10.0+)
-- Running **M-Pesa Analyzer WebApp** backend
+- Running **Smart Finance Platform** backend on port 80
 
 ---
 
@@ -17,7 +17,7 @@ This guide walks through installing, configuring, and operating the Android clie
 
 ### Step 1: Open in Android Studio
 1. Launch Android Studio.
-2. Select **Open** and choose the `Mpesa_Analyzer_App` directory.
+2. Select **Open** and choose the `Smart-Finance-Android` repository directory.
 3. Allow Gradle to sync dependencies.
 
 ### Step 2: Build and Run on Target Device
@@ -29,9 +29,11 @@ This guide walks through installing, configuring, and operating the Android clie
 
 ### Step 3: Configure Backend URL
 Upon first launch (or in **Settings**):
-- **Android Emulator**: Set URL to `http://10.0.2.2:9002/`
-- **Physical Device**: Set URL to your development machine's LAN IP, e.g. `http://192.168.1.50:9002/`
+- **Android Emulator**: Set URL to `http://10.0.2.2/`
+- **Physical Device**: Set URL to your development machine's LAN IP, e.g. `http://<YOUR_LAN_IP>/`
+- Tap **Test Connection** to confirm connectivity to `/api/v1/system/version`.
 
 ### Step 4: Grant Permissions & Sync
 1. Grant SMS Read permission when prompted.
 2. Tap **Fetch & Sync** on the Home Dashboard to trigger initial encrypted upload.
+3. Add the **M-Pesa Glance Widget** to your home screen for quick daily balance and safe-to-spend tracking.

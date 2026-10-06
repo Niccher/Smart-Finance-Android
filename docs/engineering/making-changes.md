@@ -12,6 +12,10 @@ Guide for adding features, modifying network DTOs, and writing tests in the Andr
 | **Add or update an analytics chart** | 1. Update chart binding in `fragments/Graph/GraphFragment.kt`<br/>2. Adjust viewmodel data mapping in `viewmodels/` |
 | **Modify SMS regex parsing patterns** | Edit `helpers/MpesaParser.kt` and add unit test cases in `app/src/test/` |
 | **Change scheduled sync interval or constraints** | Edit WorkRequest constraints in `workers/MpesaSyncWorker.kt` |
+| **Update homescreen Glance widget layout** | Edit `widget/MpesaGlanceWidget.kt` and Glance glanceable state |
+| **Add AI assistant starter chips or prompt templates** | Edit `activities/ChatActivity.kt` and chat message adapter |
+| **Tune loan tracking or Safe-to-Spend formula** | Edit `helpers/LoanTrackerHelper.kt` and `fragments/Home/HomeFragment.kt` |
+| **Modify CameraX QR scanner or pairing fallback** | Edit `activities/PairingActivity.kt` |
 
 ---
 

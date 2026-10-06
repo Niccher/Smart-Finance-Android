@@ -1,4 +1,4 @@
-# Local Development Guide — Mpesa Analyzer App
+# Local Development Guide — Smart Financial SMS (Android Client)
 
 Instructions for configuring Android Studio and building the client via command line.
 
