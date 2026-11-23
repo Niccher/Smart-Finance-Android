@@ -45,6 +45,18 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions ORDER BY timestamp DESC LIMIT :limit")
     suspend fun getRecentTransactions(limit: Int): List<TransactionEntity>
 
+    /**
+     * Instant Full-Text Search backed by SQLite FTS4 virtual table.
+     * Supports prefix search (e.g., 'KPLC*'), token matching, and phrase queries.
+     */
+    @Query("""
+        SELECT t.* FROM transactions t
+        JOIN transactions_fts fts ON t.localId = fts.docid
+        WHERE transactions_fts MATCH :query
+        ORDER BY t.timestamp DESC
+    """)
+    fun searchTransactionsFts(query: String): Flow<List<TransactionEntity>>
+
     @Query("DELETE FROM transactions")
     suspend fun clearAll()
 }

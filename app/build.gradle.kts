@@ -123,4 +123,11 @@ configurations.all {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
+
+    // Jetpack Glance (Declarative Compose Widgets)
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.glance.material3)
+
+    // Jetpack DataStore (Asynchronous Non-blocking Preferences)
+    implementation(libs.androidx.datastore.preferences)
 }

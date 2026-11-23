@@ -100,7 +100,7 @@
             </intent-filter>
         </receiver>
 
-        <!-- Homescreen Glance Widget -->
+        <!-- Homescreen Glance Widget (Legacy RemoteViews Provider) -->
         <receiver
             android:name=".widget.MpesaGlanceWidget"
             android:exported="true"
@@ -109,6 +109,19 @@
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="com.niccher.smart_finance.ACTION_SYNC_WIDGET" />
                 <action android:name="MPESA_UPLOAD_COMPLETE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/mpesa_widget_info" />
+        </receiver>
+
+        <!-- Modern Jetpack Glance Declarative Compose Widget -->
+        <receiver
+            android:name=".widget.SmartFinanceGlanceWidgetReceiver"
+            android:exported="true"
+            android:label="Smart Finance Glance (Compose)">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
