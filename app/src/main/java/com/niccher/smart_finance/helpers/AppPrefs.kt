@@ -1,0 +1,174 @@
+package com.niccher.smart_finance.helpers
+
+import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
+import com.niccher.smart_finance.LockActivity
+import com.niccher.smart_finance.auth.TokenAuthActivity
+import com.niccher.smart_finance.constants.Constants
+import kotlinx.coroutines.launch
+
+object AppPrefs {
+
+    private const val PREFS_NAME = "mpesa_analyser_prefs"
+    const val KEY_BIOMETRIC_ENABLED = "biometric_enabled"
+    const val KEY_DARK_THEME_ENABLED = "dark_theme_enabled"
+    const val KEY_PIN_ENABLED = "pin_enabled"
+    const val KEY_PIN_CODE = "pin_code"
+    const val KEY_CURRENCY = "pref_currency"
+    const val KEY_DATE_FORMAT = "pref_date_format"
+
+    private fun prefs(context: Context): SharedPreferences =
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+    fun isBiometricEnabled(context: Context): Boolean =
+        prefs(context).getBoolean(KEY_BIOMETRIC_ENABLED, true)
+
+    fun setBiometricEnabled(context: Context, enabled: Boolean) =
+        prefs(context).edit().putBoolean(KEY_BIOMETRIC_ENABLED, enabled).apply()
+
+    fun isDarkThemeEnabled(context: Context): Boolean =
+        prefs(context).getBoolean(KEY_DARK_THEME_ENABLED, false)
+
+    fun setDarkThemeEnabled(context: Context, enabled: Boolean) =
+        prefs(context).edit().putBoolean(KEY_DARK_THEME_ENABLED, enabled).apply()
+
+    const val KEY_BACKEND_URL = "backend_url"
+
+    fun getBackendUrl(context: Context): String =
+        prefs(context).getString(KEY_BACKEND_URL, "") ?: ""
+
+    fun setBackendUrl(context: Context, url: String) =
+        prefs(context).edit().putString(KEY_BACKEND_URL, url).apply()
+
+    // PIN Lock
+    fun isPinEnabled(context: Context): Boolean =
+        prefs(context).getBoolean(KEY_PIN_ENABLED, false)
+
+    fun setPinEnabled(context: Context, enabled: Boolean) =
+        prefs(context).edit().putBoolean(KEY_PIN_ENABLED, enabled).apply()
+
+    fun hashPin(pin: String): String {
+        if (pin.isEmpty()) return ""
+        val digest = java.security.MessageDigest.getInstance("SHA-256")
+        val salted = "SmartFinance_Salt_${pin}_Secured"
+        val hash = digest.digest(salted.toByteArray(java.nio.charset.StandardCharsets.UTF_8))
+        return hash.joinToString("") { "%02x".format(it) }
+    }
+
+    fun getPinCode(context: Context): String =
+        prefs(context).getString(KEY_PIN_CODE, "") ?: ""
+
+    fun setPinCode(context: Context, pin: String) {
+        val hashed = hashPin(pin)
+        prefs(context).edit().putString(KEY_PIN_CODE, hashed).apply()
+    }
+
+    fun verifyPin(context: Context, enteredPin: String): Boolean {
+        val stored = getPinCode(context)
+        if (stored.isEmpty()) return false
+        if (stored == enteredPin) {
+            setPinCode(context, enteredPin)
+            return true
+        }
+        return stored == hashPin(enteredPin)
+    }
+
+    // Cached server preferences
+    fun getCurrency(context: Context): String =
+        prefs(context).getString(KEY_CURRENCY, "KES") ?: "KES"
+
+    fun setCurrency(context: Context, currency: String) =
+        prefs(context).edit().putString(KEY_CURRENCY, currency).apply()
+
+    fun getDateFormat(context: Context): String =
+        prefs(context).getString(KEY_DATE_FORMAT, "Y-m-d") ?: "Y-m-d"
+
+    fun setDateFormat(context: Context, format: String) =
+        prefs(context).edit().putString(KEY_DATE_FORMAT, format).apply()
+
+    // Sync settings
+    const val KEY_SYNC_MODE = "pref_sync_mode"
+    const val KEY_SYNC_INTERVAL = "pref_sync_interval"
+    const val KEY_SYNC_COUNT_THRESHOLD = "pref_sync_count_threshold"
+    const val KEY_LAST_SYNC_SUCCESS_TIME = "pref_last_sync_success_time"
+
+    fun getSyncMode(context: Context): String =
+        prefs(context).getString(KEY_SYNC_MODE, "immediate") ?: "immediate"
+
+    fun setSyncMode(context: Context, mode: String) =
+        prefs(context).edit().putString(KEY_SYNC_MODE, mode).apply()
+
+    fun getSyncInterval(context: Context): Int =
+        prefs(context).getInt(KEY_SYNC_INTERVAL, 30)
+
+    fun setSyncInterval(context: Context, interval: Int) =
+        prefs(context).edit().putInt(KEY_SYNC_INTERVAL, interval).apply()
+
+    fun getSyncCountThreshold(context: Context): Int =
+        prefs(context).getInt(KEY_SYNC_COUNT_THRESHOLD, 10)
+
+    fun setSyncCountThreshold(context: Context, threshold: Int) =
+        prefs(context).edit().putInt(KEY_SYNC_COUNT_THRESHOLD, threshold).apply()
+
+    fun getLastSyncSuccessTime(context: Context): Long =
+        prefs(context).getLong(KEY_LAST_SYNC_SUCCESS_TIME, 0L)
+
+    fun setLastSyncSuccessTime(context: Context, time: Long) =
+        prefs(context).edit().putLong(KEY_LAST_SYNC_SUCCESS_TIME, time).apply()
+
+    // Safe-to-Spend & Budgeting
+    const val KEY_MONTHLY_BUDGET = "pref_monthly_budget"
+
+    fun getMonthlyBudget(context: Context): Float =
+        prefs(context).getFloat(KEY_MONTHLY_BUDGET, 30000f)
+
+    fun setMonthlyBudget(context: Context, budget: Float) =
+        prefs(context).edit().putFloat(KEY_MONTHLY_BUDGET, budget).apply()
+
+    fun getDaysRemainingInMonth(): Int {
+        val cal = java.util.Calendar.getInstance()
+        val daysInMonth = cal.getActualMaximum(java.util.Calendar.DAY_OF_MONTH)
+        val currentDay = cal.get(java.util.Calendar.DAY_OF_MONTH)
+        return (daysInMonth - currentDay + 1).coerceAtLeast(1)
+    }
+
+    fun getSafeToSpendToday(context: Context, currentMonthSpend: Float): Float {
+        val budget = getMonthlyBudget(context)
+        val remainingBudget = budget - currentMonthSpend
+        val daysRemaining = getDaysRemainingInMonth()
+        return if (remainingBudget <= 0f) 0f else (remainingBudget / daysRemaining.toFloat())
+    }
+
+    fun performLogout(context: Context, activity: android.app.Activity?) {
+        // 1. Clear session and counts SharedPreferences
+        context.getSharedPreferences(Constants.SHARED_AUTH_LOGIN, Context.MODE_PRIVATE).edit().clear().apply()
+        context.getSharedPreferences(Constants.SHARED_LOOT_COUNT, Context.MODE_PRIVATE).edit().clear().apply()
+        context.getSharedPreferences(Constants.SHARED_LAST_TIME, Context.MODE_PRIVATE).edit().clear().apply()
+
+        // 2. Cancel all background sync tasks
+        SyncScheduler.cancelAll(context)
+
+        // 3. Clear Room DB tables asynchronously
+        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+            try {
+                com.niccher.smart_finance.database.AppDatabase.getDatabase(context).clearAllTables()
+            } catch (e: Exception) {
+                android.util.Log.e("AppPrefs", "Error clearing Room DB on logout", e)
+            }
+        }
+
+        // 4. Reset lock state
+        LockActivity.isUnlocked = false
+
+        // 5. Navigate to TokenAuthActivity
+        val intent = Intent(context, TokenAuthActivity::class.java)
+        intent.addFlags(
+            Intent.FLAG_ACTIVITY_CLEAR_TOP or
+            Intent.FLAG_ACTIVITY_CLEAR_TASK or
+            Intent.FLAG_ACTIVITY_NEW_TASK
+        )
+        context.startActivity(intent)
+        activity?.finish()
+    }
+}

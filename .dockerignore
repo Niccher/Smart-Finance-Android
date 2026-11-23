@@ -1,0 +1,33 @@
+# Environments
+.env
+.env.*
+
+# IDEs
+.idea/
+.vscode/
+
+# Git
+.git/
+.gitignore
+
+# Dependencies
+vendor/
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+
+# Build
+build/
+app/build/
+dist/
+*.apk
+*.aab
+.gradle/
+.kotlin/
+local.properties
+
+# OS
+.DS_Store

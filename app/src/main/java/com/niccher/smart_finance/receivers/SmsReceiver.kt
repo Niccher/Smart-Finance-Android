@@ -1,0 +1,110 @@
+package com.niccher.smart_finance.receivers
+
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.provider.Telephony
+import android.util.Log
+import com.niccher.smart_finance.database.AppDatabase
+import com.niccher.smart_finance.database.TransactionEntity
+import com.niccher.smart_finance.helpers.AppPrefs
+import com.niccher.smart_finance.helpers.MpesaParser
+import com.niccher.smart_finance.helpers.TransactionNotificationHelper
+import com.niccher.smart_finance.helpers.SyncScheduler
+import com.niccher.smart_finance.constants.Constants
+import com.niccher.smart_finance.services.UploadService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
+class SmsReceiver : BroadcastReceiver() {
+
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action == Telephony.Sms.Intents.SMS_RECEIVED_ACTION) {
+            val messages = Telephony.Sms.Intents.getMessagesFromIntent(intent)
+            for (message in messages) {
+                val sender = message.displayOriginatingAddress ?: continue
+                val body = message.displayMessageBody ?: continue
+                val timestamp = message.timestampMillis
+
+                Log.d("SmsReceiver", "Received SMS from: $sender")
+
+                val normalizedSender = sender.uppercase().trim()
+                if (normalizedSender.contains("MPESA") || 
+                    normalizedSender.contains("AIRTELMONEY") || 
+                    normalizedSender.contains("TKASH") ||
+                    normalizedSender.contains("T-KASH")
+                ) {
+                    val parsed = MpesaParser.parseMessage(body)
+                    if (parsed != null) {
+                        val carrier = if (normalizedSender.contains("AIRTEL")) "Airtel" 
+                                      else if (normalizedSender.contains("TKASH") || normalizedSender.contains("T-KASH")) "Telkom"
+                                      else "Safaricom"
+                        
+                        val entity = TransactionEntity(
+                            smsId = System.currentTimeMillis(),
+                            sender = sender,
+                            body = body,
+                            amount = parsed.amount,
+                            category = parsed.category,
+                            direction = if (parsed.category == "Money Received") "incoming" else "outgoing",
+                            carrier = carrier,
+                            simSlot = 0,
+                            timestamp = timestamp,
+                            syncStatus = 0
+                        )
+
+                        val database = AppDatabase.getDatabase(context)
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val rowId = database.transactionDao().insertTransaction(entity)
+                            Log.d("SmsReceiver", "Transaction saved to local DB with rowId=$rowId.")
+
+                            // Trigger rich real-time heads-up notification
+                            try {
+                                val savedEntity = entity.copy(localId = rowId)
+                                TransactionNotificationHelper.showNotification(context, parsed, savedEntity)
+                            } catch (e: Exception) {
+                                Log.e("SmsReceiver", "Failed to show real-time notification", e)
+                            }
+
+                            // Trigger widget refresh if installed
+                            try {
+                                val widgetIntent = Intent("android.appwidget.action.APPWIDGET_UPDATE")
+                                context.sendBroadcast(widgetIntent)
+                            } catch (_: Exception) {}
+
+                            val mode = AppPrefs.getSyncMode(context)
+                            var shouldUpload = false
+
+                            when (mode) {
+                                "immediate" -> {
+                                    shouldUpload = true
+                                }
+                                "count" -> {
+                                    val threshold = AppPrefs.getSyncCountThreshold(context)
+                                    val watermark = context.getSharedPreferences(Constants.SHARED_LAST_TIME, Context.MODE_PRIVATE)
+                                        .getLong(Constants.SHARED_LAST_SMS_ID, 0L)
+                                    val unsyncedCount = SyncScheduler.getUnsyncedSmsCount(context, watermark)
+                                    Log.d("SmsReceiver", "Count mode: unsyncedCount = $unsyncedCount, threshold = $threshold")
+                                    if (unsyncedCount >= threshold) {
+                                        shouldUpload = true
+                                    }
+                                }
+                            }
+
+                            if (shouldUpload) {
+                                Log.d("SmsReceiver", "Triggering upload service...")
+                                val uploadIntent = Intent(context, UploadService::class.java)
+                                try {
+                                    context.startService(uploadIntent)
+                                } catch (e: Exception) {
+                                    Log.e("SmsReceiver", "Failed to start UploadService from background receiver", e)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

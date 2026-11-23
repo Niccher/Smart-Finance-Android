@@ -94,9 +94,9 @@
             android:name=".receivers.NotificationActionReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.niccher.mpesa_analyzer_app.ACTION_CHANGE_CATEGORY" />
-                <action android:name="com.niccher.mpesa_analyzer_app.ACTION_ADD_NOTE" />
-                <action android:name="com.niccher.mpesa_analyzer_app.ACTION_SPLIT_BILL" />
+                <action android:name="com.niccher.smart_finance.ACTION_CHANGE_CATEGORY" />
+                <action android:name="com.niccher.smart_finance.ACTION_ADD_NOTE" />
+                <action android:name="com.niccher.smart_finance.ACTION_SPLIT_BILL" />
             </intent-filter>
         </receiver>
 
@@ -107,7 +107,7 @@
             android:label="M-Pesa Live Glance">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.niccher.mpesa_analyzer_app.ACTION_SYNC_WIDGET" />
+                <action android:name="com.niccher.smart_finance.ACTION_SYNC_WIDGET" />
                 <action android:name="MPESA_UPLOAD_COMPLETE" />
             </intent-filter>
             <meta-data

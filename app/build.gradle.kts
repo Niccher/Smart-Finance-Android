@@ -6,12 +6,12 @@ plugins {
 }
 
 android {
-    namespace = "com.niccher.mpesa_analyzer_app"
+    namespace = "com.niccher.smart_finance"
     compileSdk = 35
     buildToolsVersion = "35.0.0"
 
     defaultConfig {
-        applicationId = "com.niccher.mpesa_analyzer_app"
+        applicationId = "com.niccher.smart_finance"
         minSdk = 29
         targetSdk = 35
         versionCode = 4

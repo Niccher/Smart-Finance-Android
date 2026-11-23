@@ -38,6 +38,9 @@ Thumbs.db
 
 # Android & Gradle
 .gradle/
+.kotlin/
+.cxx/
+.externalNativeBuild/
+captures/
 local.properties
-.dockerignore
 
